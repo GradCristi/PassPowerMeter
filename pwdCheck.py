@@ -1,6 +1,5 @@
 
 
-
 class pwdChecker:
     def __init__(self):
         #tier list thing for actual grading and acceptance of password
@@ -22,11 +21,26 @@ class pwdChecker:
             #i think we should modulo against this somehow later
         else:
             #generally, the longer the better, but this shouldnt be the sole determining factor
-            return len(password)*12, prints #i want to be able to reach adaquate if 16 chars exist and all other preconditions are met.
+            return len(password)*3.75, prints #i want to be able to reach adaquate if 16 chars exist and all other preconditions are met.
 
 
 
     #Length, special characters, numbers, dictionary patterns.
-    def analysys(self, string):
-        lengthScore, lengthFeedback=self._rateLength(password)
+    def analysis(self, string):
+        lengthScore, lengthFeedback=self._rateLength(string)
+        return lengthScore, lengthFeedback
 
+# Create an instance of the class
+checker = pwdChecker()
+
+# Get input from the user
+user_password = input("Enter a password to check: ")
+
+# Call the analysis method
+score, feedback = checker.analysis(user_password)
+
+# Print the results
+print(f"Password score: {score}")
+print("Feedback:")
+for item in feedback:
+    print(f"- {item}")
