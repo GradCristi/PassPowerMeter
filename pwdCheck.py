@@ -17,18 +17,44 @@ class pwdChecker:
 
         if len(password)<12:
             prints.append("Passwords need to be at least 12 characters long")
-            return 10, prints #we want this to be impassible, no password should be accepted without 12 chars
+            return 0, prints #we want this to be impassible, no password should be accepted without 12 chars
             #i think we should modulo against this somehow later
         else:
             #generally, the longer the better, but this shouldnt be the sole determining factor
             return len(password)*3.75, prints #i want to be able to reach adaquate if 16 chars exist and all other preconditions are met.
 
-
+    @staticmethod
+    def _rateSpecNumeric(password):
+        containsNumber=False
+        containsSpecial=False
+        prints =[]
+        """Check for presence of numbers and special characters"""
+        for letter in password:
+            if 48 <= ord(letter) <= 57:
+                containsNumber=True
+            elif letter.isprintable() and not letter.isspace() and not letter.isalnum():
+                containsSpecial=True
+        if not containsNumber:
+            prints.append("Passwords must contain numbers")
+            return 0, prints
+        if not containsSpecial:
+            prints.append("Passwords must contain special characters")
+            return 0, prints
+        return 10, prints
+                
 
     #Length, special characters, numbers, dictionary patterns.
     def analysis(self, string):
+        #checking the overall length of the password
         lengthScore, lengthFeedback=self._rateLength(string)
-        return lengthScore, lengthFeedback
+        if len(lengthFeedback)>0:
+            return lengthScore, lengthFeedback
+        #checking special characters and numbers in one single go
+        specNumericScore, specNumericFeedback= self._rateSpecNumeric(string)
+        ##we also need a total aggregate feedback and score.
+        if len(specNumericFeedback)>0:
+            return lengthScore+specNumericScore, specNumericFeedback
+        return lengthScore+specNumericScore, specNumericFeedback
 
 # Create an instance of the class
 checker = pwdChecker()
