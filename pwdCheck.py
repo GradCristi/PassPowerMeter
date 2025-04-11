@@ -49,10 +49,12 @@ class pwdChecker:
     def _isDictionaryVulnerable(password):
         dictionary = []
         min_word_length=3
-        count=0
+        wordCount=0
+        letterCount=0
+        originality=0
+        foundWords=[]
         try:
-            with open('/usr/share/dict/words', 'r') as file:
-                #size was measured at 1.96MB which I consider to be low enough to not warrant additional processing
+            with open('/Users/cristiangradinaru/Downloads/20k.txt', 'r') as file:
                 dictionary = [word.strip().lower() for word in file if len(word.strip()) >= min_word_length]
         except FileNotFoundError:
             # Fallback to a smaller common word list
@@ -61,7 +63,17 @@ class pwdChecker:
         passwordLower=password.lower()
         for word in dictionary:
             if word in passwordLower:
-                count+=1
+                foundWords.append(word)
+        
+        for word in foundWords:
+            #if i find it contained in any of the other
+
+
+        originality=len(password)/letterCount
+        print(wordCount,originality,letterCount)
+        if(wordCount<3):
+            if originality<1.5:
+                print("Choose a password that is not susceptable to a dictionary attack")
         return 0
 
     #Length, special characters, numbers, dictionary patterns.
