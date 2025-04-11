@@ -1,4 +1,4 @@
-
+import sys
 
 class pwdChecker:
     def __init__(self):
@@ -41,7 +41,28 @@ class pwdChecker:
             prints.append("Passwords must contain special characters")
             return 0, prints
         return 10, prints
-                
+    
+    
+    #we would need to establish how much percetntage-wise a password is a single dictionary word+numbers. 
+    #three longer dictionary words+ some numbers should be enough to constitute a secure password.
+    @staticmethod
+    def _isDictionaryVulnerable(password):
+        dictionary = []
+        min_word_length=3
+        count=0
+        try:
+            with open('/usr/share/dict/words', 'r') as file:
+                #size was measured at 1.96MB which I consider to be low enough to not warrant additional processing
+                dictionary = [word.strip().lower() for word in file if len(word.strip()) >= min_word_length]
+        except FileNotFoundError:
+            # Fallback to a smaller common word list
+            print("Dictionary file not found. Please provide a path to a dictionary file.")
+            return False
+        passwordLower=password.lower()
+        for word in dictionary:
+            if word in passwordLower:
+                count+=1
+        return 0
 
     #Length, special characters, numbers, dictionary patterns.
     def analysis(self, string):
@@ -51,6 +72,7 @@ class pwdChecker:
             return lengthScore, lengthFeedback
         #checking special characters and numbers in one single go
         specNumericScore, specNumericFeedback= self._rateSpecNumeric(string)
+        random=self._isDictionaryVulnerable(string)
         ##we also need a total aggregate feedback and score.
         if len(specNumericFeedback)>0:
             return lengthScore+specNumericScore, specNumericFeedback
