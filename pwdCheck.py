@@ -53,8 +53,9 @@ class pwdChecker:
         letterCount=0
         originality=0
         foundWords=[]
+        prints=[]
         try:
-            with open('/Users/cristiangradinaru/Downloads/20k.txt', 'r') as file:
+            with open('/usr/share/dict/words', 'r') as file:
                 dictionary = [word.strip().lower() for word in file if len(word.strip()) >= min_word_length]
         except FileNotFoundError:
             # Fallback to a smaller common word list
@@ -65,30 +66,42 @@ class pwdChecker:
             if word in passwordLower:
                 foundWords.append(word)
         
-        for word in foundWords:
-            #if i find it contained in any of the other
+        sortedWords=sorted(foundWords, key=len, reverse=True)
+        result=[]
+        for word in sortedWords:
+            if not any(word in keptWord for keptWord in result):
+                result=[keptWord for keptWord in result if keptWord not in word]
+                result.append(word)
 
+        for word in result:
+            letterCount+=len(word)
+            wordCount+=1
 
         originality=len(password)/letterCount
-        print(wordCount,originality,letterCount)
         if(wordCount<3):
             if originality<1.5:
-                print("Choose a password that is not susceptable to a dictionary attack")
-        return 0
+                prints.append("Choose a password that is not susceptable to a dictionary attack")
+            return 0, prints
+        return 20, prints
 
     #Length, special characters, numbers, dictionary patterns.
     def analysis(self, string):
         #checking the overall length of the password
         lengthScore, lengthFeedback=self._rateLength(string)
         if len(lengthFeedback)>0:
-            return lengthScore, lengthFeedback
+            return 0, lengthFeedback
         #checking special characters and numbers in one single go
         specNumericScore, specNumericFeedback= self._rateSpecNumeric(string)
-        random=self._isDictionaryVulnerable(string)
-        ##we also need a total aggregate feedback and score.
+        #we also need a total aggregate feedback and score.
         if len(specNumericFeedback)>0:
-            return lengthScore+specNumericScore, specNumericFeedback
-        return lengthScore+specNumericScore, specNumericFeedback
+            return 0, specNumericFeedback
+        
+        dictionaryScore, dictionaryFeedback=self._isDictionaryVulnerable(string)
+
+        if len(dictionaryFeedback)>0:
+            return lengthScore+specNumericScore, dictionaryFeedback
+
+        return lengthScore+specNumericScore+dictionaryScore, dictionaryFeedback
 
 # Create an instance of the class
 checker = pwdChecker()
@@ -101,6 +114,5 @@ score, feedback = checker.analysis(user_password)
 
 # Print the results
 print(f"Password score: {score}")
-print("Feedback:")
-for item in feedback:
-    print(f"- {item}")
+if len(feedback)>0:
+    print(feedback)
